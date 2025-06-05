@@ -1,4 +1,5 @@
-URBAN_ROUTES_URL = 'https://cnt-6b3e273a-1b66-4637-9949-c1965248a2ab.containerhub.tripleten-services.com'
+URBAN_ROUTES_URL = ''  # Add your live server URL here when available
+
 ADDRESS_FROM = 'East 2nd Street, 601'
 ADDRESS_TO = '1300 1st St'
 PHONE_NUMBER = '+1 123 123 12 12'
