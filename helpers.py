@@ -1,3 +1,4 @@
+# Retrieves Phone code. Do not change
 def retrieve_phone_code(driver) -> str:
     """This code retrieves phone confirmation number and returns it as a string.
     Use it when application waits for the confirmation code to pass it into your tests.
@@ -5,7 +6,7 @@ def retrieve_phone_code(driver) -> str:
 
     import json
     import time
-    from selenium.common import WebDriverException
+    from selenium.common.exceptions import WebDriverException  # ✅ FIXED: proper import
     code = None
     for i in range(10):
         try:
@@ -16,16 +17,16 @@ def retrieve_phone_code(driver) -> str:
                 body = driver.execute_cdp_cmd('Network.getResponseBody',
                                               {'requestId': message_data["params"]["requestId"]})
                 code = ''.join([x for x in body['body'] if x.isdigit()])
+                if code:
+                    return code  # ✅ FIXED: return only when code is valid
         except WebDriverException:
             time.sleep(1)
             continue
-        if not code:
-            raise Exception("No phone confirmation code found.\n"
-                            "Please use retrieve_phone_code only after the code was requested in your application.")
-        return code
+    raise Exception("No phone confirmation code found.\n"
+                    "Please use retrieve_phone_code only after the code was requested in your application.")
 
-
-def is_url_reachable(url):
+# Checks if Routes is up and running. Do not change
+def is_url_reachable(url: str) -> bool:
     """Check if the URL can be reached. Pass the URL for Urban Routes as a parameter.
     If it can be reached, it returns True, otherwise it returns False"""
 
@@ -38,11 +39,7 @@ def is_url_reachable(url):
         ssl_ctx.verify_mode = ssl.CERT_NONE
 
         with urllib.request.urlopen(url, context=ssl_ctx) as response:
-            if response.status == 200:
-                 return True
-            else:
-                return False
+            return response.status == 200
     except Exception as e:
-        print (e)
-
-    return False
+        print(e)
+        return False

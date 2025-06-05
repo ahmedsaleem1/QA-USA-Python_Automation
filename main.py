@@ -42,8 +42,9 @@ class TestUrbanRoutes:
 
     def test_order_2_ice_creams(self):
         print("test_order_2_ice_creams function is ready")
-        # Add in S8
-        pass
+        for _ in range(2):
+            # Add in S8
+            pass
 
     def test_car_search_model_appears(self):
         print("test_car_search_model_appears function is ready")
