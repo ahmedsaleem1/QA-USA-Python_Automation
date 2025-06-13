@@ -2,26 +2,26 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions
-import data as data_constants
+import data
 import helpers as helper_funcs
 
 
 class UrbanRoutesPage:
     def __init__(self, driver):
         self.driver = driver
-        self.driver.get(data_constants.URBAN_ROUTES_URL)
+        self.driver.get(data.URBAN_ROUTES_URL)
 
     def set_route(self):
         wait = WebDriverWait(self.driver, 10)
 
         from_input = wait.until(expected_conditions.visibility_of_element_located((By.ID, "from")))
         from_input.clear()
-        from_input.send_keys(data_constants.ADDRESS_FROM)
+        from_input.send_keys(data.ADDRESS_FROM)
         from_input.send_keys(Keys.RETURN)
 
         to_input = wait.until(expected_conditions.visibility_of_element_located((By.ID, "to")))
         to_input.clear()
-        to_input.send_keys(data_constants.ADDRESS_TO)
+        to_input.send_keys(data.ADDRESS_TO)
         to_input.send_keys(Keys.RETURN)
 
     def select_plan(self):
@@ -35,7 +35,7 @@ class UrbanRoutesPage:
         wait = WebDriverWait(self.driver, 10)
         phone_input = wait.until(expected_conditions.visibility_of_element_located((By.ID, "phone")))
         phone_input.clear()
-        phone_input.send_keys(data_constants.PHONE_NUMBER)
+        phone_input.send_keys(data.PHONE_NUMBER)
 
         send_button = self.driver.find_element(By.CLASS_NAME, "send-button")
         send_button.click()
@@ -49,10 +49,10 @@ class UrbanRoutesPage:
 
         card_input = wait.until(expected_conditions.visibility_of_element_located((By.ID, "number")))
         card_input.clear()
-        card_input.send_keys(data_constants.CARD_NUMBER)
+        card_input.send_keys(data.CARD_NUMBER)
 
         code_input = self.driver.find_element(By.ID, "code")
-        code_input.send_keys(data_constants.CARD_CODE)
+        code_input.send_keys(data.CARD_CODE)
         code_input.send_keys(Keys.TAB)
 
         link_button = wait.until(expected_conditions.element_to_be_clickable((By.CLASS_NAME, "button-link")))
@@ -61,7 +61,7 @@ class UrbanRoutesPage:
     def comment_for_driver(self):
         wait = WebDriverWait(self.driver, 10)
         comment_box = wait.until(expected_conditions.visibility_of_element_located((By.ID, "comment")))
-        comment_box.send_keys(data_constants.MESSAGE_FOR_DRIVER)
+        comment_box.send_keys(data.MESSAGE_FOR_DRIVER)
 
     def order_blanket_and_handkerchiefs(self):
         wait = WebDriverWait(self.driver, 10)

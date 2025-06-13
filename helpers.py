@@ -1,31 +1,52 @@
-def retrieve_phone_code(driver) -> str:
-    import json
-    import time
-    from selenium.common.exceptions import WebDriverException
+import json
+import time
+import ssl
+import urllib.request
+import urllib.error
+from selenium.common.exceptions import WebDriverException
+from selenium.webdriver.chrome.webdriver import WebDriver
 
-    for i in range(10):
+
+def retrieve_phone_code(driver: WebDriver) -> str:
+    """
+    Retrieves the phone confirmation code from performance logs of the Chrome browser.
+    """
+    for _ in range(10):
         try:
-            logs = [log["message"] for log in driver.get_log('performance') if log.get("message")
-                    and 'api/v1/number?number' in log.get("message")]
+            logs = [
+                log["message"]
+                for log in driver.get_log('performance')
+                if log.get("message") and 'api/v1/number?number' in log.get("message")
+            ]
+
             for log in reversed(logs):
                 message_data = json.loads(log)["message"]
-                body = driver.execute_cdp_cmd('Network.getResponseBody',
-                                              {'requestId': message_data["params"]["requestId"]})
-                code = ''.join([x for x in body['body'] if x.isdigit()])
+                request_id = message_data["params"]["requestId"]
+
+                response_body = driver.execute_cdp_cmd(
+                    'Network.getResponseBody', {'requestId': request_id}
+                )
+
+                code = ''.join(filter(str.isdigit, response_body['body']))
                 if code:
                     return code
+
         except WebDriverException:
             time.sleep(1)
-            continue
-    raise Exception("No phone confirmation code found.\n"
-                    "Please use retrieve_phone_code only after the code was requested in your application.")
+        except Exception as e:
+            print(f"Error retrieving phone code: {e}")
+            time.sleep(1)
+
+    raise Exception(
+        "No phone confirmation code found.\n"
+        "Make sure the code was requested in the application before calling retrieve_phone_code()."
+    )
 
 
 def is_url_reachable(url: str) -> bool:
-    import ssl
-    import urllib.request
-    import urllib.error
-
+    """
+    Checks if the given URL is reachable by attempting to open it with relaxed SSL checks.
+    """
     try:
         ssl_ctx = ssl.create_default_context()
         ssl_ctx.check_hostname = False

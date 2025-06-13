@@ -5,6 +5,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 
+
 class TestUrbanRoutes:
 
     @classmethod
@@ -13,14 +14,14 @@ class TestUrbanRoutes:
         chrome_options = Options()
         chrome_options.set_capability("goog:loggingPrefs", {"performance": "ALL"})
 
-        # Provide path to chromedriver if needed, or leave empty if in PATH
+        # Start Chrome WebDriver
         cls.driver = webdriver.Chrome(service=Service(), options=chrome_options)
 
-        # Check if server is running
+        # Verify server connection
         if helpers.is_url_reachable(data.URBAN_ROUTES_URL):
             print("✅ Connected to the Urban Routes server")
         else:
-            raise Exception("❌ Cannot connect to Urban Routes. Check the server is on and running.")
+            raise Exception("❌ Cannot connect to Urban Routes. Check that the server is running.")
 
         cls.page = UrbanRoutesPage(cls.driver)
 
@@ -54,8 +55,8 @@ class TestUrbanRoutes:
 
 
 if __name__ == "__main__":
-    test_suite = TestUrbanRoutes()
     TestUrbanRoutes.setup_class()
+    test_suite = TestUrbanRoutes()
     try:
         test_suite.test_set_route()
         test_suite.test_select_plan()
@@ -67,3 +68,4 @@ if __name__ == "__main__":
         test_suite.test_submit_order()
     finally:
         TestUrbanRoutes.teardown_class()
+
