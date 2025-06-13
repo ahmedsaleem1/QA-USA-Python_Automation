@@ -1,7 +1,7 @@
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions
+from selenium.webdriver.support import expected_conditions as EC
 import data
 import helpers as helper_funcs
 
@@ -9,78 +9,79 @@ import helpers as helper_funcs
 class UrbanRoutesPage:
     def __init__(self, driver):
         self.driver = driver
+        self.wait = WebDriverWait(driver, 10)
         self.driver.get(data.URBAN_ROUTES_URL)
 
+    # 🔎 Locators
+    FROM_INPUT = (By.ID, "from")
+    TO_INPUT = (By.ID, "to")
+    PLAN_SUPPORTIVE = (By.XPATH, "//div[contains(text(),'Supportive')]")
+    PHONE_INPUT = (By.ID, "phone")
+    SEND_BUTTON = (By.CLASS_NAME, "send-button")
+    CODE_INPUT = (By.ID, "code")
+    CARD_NUMBER_INPUT = (By.ID, "number")
+    CARD_CODE_INPUT = (By.ID, "code")
+    LINK_BUTTON = (By.CLASS_NAME, "button-link")
+    COMMENT_BOX = (By.ID, "comment")
+    BLANKET_TOGGLE = (By.CLASS_NAME, "blankets")
+    ICE_CREAM_BUTTON = (By.CLASS_NAME, "ice-creams")
+    ORDER_BUTTON = (By.CLASS_NAME, "next-button")
+    MODAL = (By.CLASS_NAME, "modal")
+
     def set_route(self):
-        wait = WebDriverWait(self.driver, 10)
-
-        from_input = wait.until(expected_conditions.visibility_of_element_located((By.ID, "from")))
+        from_input = self.wait.until(EC.visibility_of_element_located(self.FROM_INPUT))
         from_input.clear()
-        from_input.send_keys(data.ADDRESS_FROM)
-        from_input.send_keys(Keys.RETURN)
+        from_input.send_keys(data.ADDRESS_FROM + Keys.RETURN)
 
-        to_input = wait.until(expected_conditions.visibility_of_element_located((By.ID, "to")))
+        to_input = self.wait.until(EC.visibility_of_element_located(self.TO_INPUT))
         to_input.clear()
-        to_input.send_keys(data.ADDRESS_TO)
-        to_input.send_keys(Keys.RETURN)
+        to_input.send_keys(data.ADDRESS_TO + Keys.RETURN)
 
     def select_plan(self):
-        wait = WebDriverWait(self.driver, 10)
-        plan = wait.until(expected_conditions.element_to_be_clickable((By.XPATH, "//div[contains(text(),'Supportive')]")))
-
+        plan = self.wait.until(EC.element_to_be_clickable(self.PLAN_SUPPORTIVE))
         if "selected" not in plan.get_attribute("class"):
             plan.click()
 
     def fill_phone_number(self):
-        wait = WebDriverWait(self.driver, 10)
-        phone_input = wait.until(expected_conditions.visibility_of_element_located((By.ID, "phone")))
+        phone_input = self.wait.until(EC.visibility_of_element_located(self.PHONE_INPUT))
         phone_input.clear()
         phone_input.send_keys(data.PHONE_NUMBER)
 
-        send_button = self.driver.find_element(By.CLASS_NAME, "send-button")
-        send_button.click()
+        self.driver.find_element(*self.SEND_BUTTON).click()
 
-        code_input = wait.until(expected_conditions.visibility_of_element_located((By.ID, "code")))
         code = helper_funcs.retrieve_phone_code(self.driver)
+        code_input = self.wait.until(EC.visibility_of_element_located(self.CODE_INPUT))
         code_input.send_keys(code)
 
     def fill_card(self):
-        wait = WebDriverWait(self.driver, 10)
-
-        card_input = wait.until(expected_conditions.visibility_of_element_located((By.ID, "number")))
+        card_input = self.wait.until(EC.visibility_of_element_located(self.CARD_NUMBER_INPUT))
         card_input.clear()
         card_input.send_keys(data.CARD_NUMBER)
 
-        code_input = self.driver.find_element(By.ID, "code")
+        code_input = self.driver.find_element(*self.CARD_CODE_INPUT)
         code_input.send_keys(data.CARD_CODE)
         code_input.send_keys(Keys.TAB)
 
-        link_button = wait.until(expected_conditions.element_to_be_clickable((By.CLASS_NAME, "button-link")))
-        link_button.click()
+        self.wait.until(EC.element_to_be_clickable(self.LINK_BUTTON)).click()
 
     def comment_for_driver(self):
-        wait = WebDriverWait(self.driver, 10)
-        comment_box = wait.until(expected_conditions.visibility_of_element_located((By.ID, "comment")))
+        comment_box = self.wait.until(EC.visibility_of_element_located(self.COMMENT_BOX))
+        comment_box.clear()
         comment_box.send_keys(data.MESSAGE_FOR_DRIVER)
 
     def order_blanket_and_handkerchiefs(self):
-        wait = WebDriverWait(self.driver, 10)
-        blanket_toggle = wait.until(expected_conditions.element_to_be_clickable((By.CLASS_NAME, "blankets")))
-        blanket_toggle.click()
-
-        wait.until(lambda d: "selected" in blanket_toggle.get_attribute("class"))
+        toggle = self.wait.until(EC.element_to_be_clickable(self.BLANKET_TOGGLE))
+        toggle.click()
+        self.wait.until(lambda d: "selected" in toggle.get_attribute("class"))
 
     def order_ice_cream(self, count=2):
-        wait = WebDriverWait(self.driver, 10)
-        ice_cream_button = wait.until(expected_conditions.element_to_be_clickable((By.CLASS_NAME, "ice-creams")))
-
+        ice_cream_button = self.wait.until(EC.element_to_be_clickable(self.ICE_CREAM_BUTTON))
         for _ in range(count):
             ice_cream_button.click()
 
     def submit_order(self):
-        wait = WebDriverWait(self.driver, 10)
-        order_button = wait.until(expected_conditions.element_to_be_clickable((By.CLASS_NAME, "next-button")))
+        order_button = self.wait.until(EC.element_to_be_clickable(self.ORDER_BUTTON))
         order_button.click()
 
-        modal = wait.until(expected_conditions.visibility_of_element_located((By.CLASS_NAME, "modal")))
-        assert modal.is_displayed()
+        modal = self.wait.until(EC.visibility_of_element_located(self.MODAL))
+        return modal.is_displayed()
