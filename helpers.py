@@ -1,13 +1,8 @@
-# Retrieves Phone code. Do not change
 def retrieve_phone_code(driver) -> str:
-    """This code retrieves phone confirmation number and returns it as a string.
-    Use it when application waits for the confirmation code to pass it into your tests.
-    The phone confirmation code can only be obtained after it was requested in application."""
-
     import json
     import time
-    from selenium.common.exceptions import WebDriverException  # ✅ FIXED: proper import
-    code = None
+    from selenium.common.exceptions import WebDriverException
+
     for i in range(10):
         try:
             logs = [log["message"] for log in driver.get_log('performance') if log.get("message")
@@ -18,28 +13,29 @@ def retrieve_phone_code(driver) -> str:
                                               {'requestId': message_data["params"]["requestId"]})
                 code = ''.join([x for x in body['body'] if x.isdigit()])
                 if code:
-                    return code  # ✅ FIXED: return only when code is valid
+                    return code
         except WebDriverException:
             time.sleep(1)
             continue
     raise Exception("No phone confirmation code found.\n"
                     "Please use retrieve_phone_code only after the code was requested in your application.")
 
-# Checks if Routes is up and running. Do not change
-def is_url_reachable(url: str) -> bool:
-    """Check if the URL can be reached. Pass the URL for Urban Routes as a parameter.
-    If it can be reached, it returns True, otherwise it returns False"""
 
+def is_url_reachable(url: str) -> bool:
     import ssl
     import urllib.request
+    import urllib.error
 
     try:
         ssl_ctx = ssl.create_default_context()
         ssl_ctx.check_hostname = False
         ssl_ctx.verify_mode = ssl.CERT_NONE
 
-        with urllib.request.urlopen(url, context=ssl_ctx) as response:
+        with urllib.request.urlopen(url, context=ssl_ctx, timeout=5) as response:
             return response.status == 200
+    except (urllib.error.URLError, urllib.error.HTTPError, ssl.SSLError) as e:
+        print(f"URL not reachable: {e}")
+        return False
     except Exception as e:
-        print(e)
+        print(f"Unexpected error checking URL: {e}")
         return False
